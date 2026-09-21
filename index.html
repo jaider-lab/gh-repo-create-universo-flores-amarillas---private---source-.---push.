@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05030f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Un universo de flores amarillas para Steff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Karla:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   GALAXIA DE FLORES AMARILLAS — para Steff
+   Un solo archivo: HTML + CSS + JS
+   ========================================================= */
+
+:root{
+  --noche:        #05030f;
+  --noche-2:      #0d0820;
+  --oro:          #ffd34d;
+  --oro-claro:    #fff1a8;
+  --ambar:        #f7a83c;
+  --miel:         #fff6d8;
+  --tinta:        #4a3410;
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Karla", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --radio-orbita: clamp(165px, 33vmin, 290px);
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after{ box-sizing: border-box; }
+
+html{
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust:100%;   /* evita que iOS agrande el texto al girar */
+  text-size-adjust:100%;
+}
+
+/* Sin retardo de 300 ms ni destello gris al tocar en móvil */
+button{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+
+body{
+  margin:0;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;      /* sin "pull to refresh" accidental */
+  min-height:100vh;                /* respaldo para navegadores antiguos */
+  min-height:100svh;
+  background:
+    radial-gradient(120% 90% at 50% 45%, #170d2e 0%, var(--noche-2) 45%, var(--noche) 100%);
+  color:#f6efdd;
+  font-family: var(--sans);
+  overflow-x:hidden;
+}
+
+/* ---------- Cielo (estrellas + polvo dorado) ---------- */
+#cielo{
+  position:fixed;
+  top:0; left:0;            /* respaldo por si "inset" no está soportado */
+  inset:0;
+  width:100%; height:100%;
+  z-index:0; pointer-events:none;
+  transform:translateZ(0);  /* lo manda a la GPU: scroll más fluido en móvil */
+}
+
+/* ---------- Estructura ---------- */
+.universo{
+  position:relative; z-index:1;
+  max-width:1100px;
+  margin:0 auto;
+  padding: clamp(2rem,6vw,4.5rem) 1.25rem clamp(3rem,8vw,6rem);
+  display:flex; flex-direction:column; align-items:center;
+}
+
+.intro{ text-align:center; margin-bottom: clamp(1.5rem,5vw,3rem); max-width:44ch; }
+.intro h1{
+  font-family:var(--serif);
+  font-weight:400; font-style:italic;
+  font-size: clamp(1.9rem, 6vw, 3.4rem);
+  line-height:1.1; margin:0 0 .7rem;
+  color:var(--oro-claro);
+  text-shadow:0 0 26px rgba(255,211,77,.45), 0 0 60px rgba(255,168,60,.25);
+}
+.intro p{
+  margin:0; font-size:clamp(.92rem,2.4vw,1.02rem);
+  color:#d8cfae; line-height:1.6;
+}
+
+/* ---------- Galaxia ---------- */
+.galaxia{
+  position:relative;
+  width:min(94vw, 860px);
+  aspect-ratio:1/1;
+}
+/* Navegadores viejos sin aspect-ratio (iOS 14 y anteriores) */
+@supports not (aspect-ratio: 1/1){
+  .galaxia{ height:0; padding-bottom:100%; }
+}
+
+/* Núcleo galáctico */
+.nucleo-wrap{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:clamp(180px, 34vmin, 300px);
+  aspect-ratio:1/1;
+  display:grid; place-items:center;
+}
+.espiral, .espiral-2, .halo, .corazon-de-oro{ grid-area:1/1; }
+
+.halo{
+  width:100%; height:100%; border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(255,255,240,.95) 0%,
+    rgba(255,211,77,.85) 12%,
+    rgba(247,168,60,.35) 34%,
+    rgba(120,60,160,.18) 62%,
+    transparent 76%);
+  filter:blur(6px);
+  animation:latir 5.5s ease-in-out infinite;
+}
+.espiral, .espiral-2{
+  width:190%; height:190%; border-radius:50%;
+  background:conic-gradient(from 0deg,
+    transparent 0deg, rgba(255,241,168,.50) 42deg, transparent 120deg,
+    transparent 180deg, rgba(255,211,77,.40) 226deg, transparent 306deg);
+  filter:blur(16px);
+  animation:girar 26s linear infinite;
+}
+.espiral-2{
+  width:135%; height:135%;
+  background:conic-gradient(from 90deg,
+    transparent 0deg, rgba(255,247,214,.55) 50deg, transparent 130deg,
+    transparent 190deg, rgba(247,168,60,.45) 240deg, transparent 320deg);
+  filter:blur(9px);
+  animation-duration:16s; animation-direction:reverse;
+}
+/* Si el navegador no entiende conic-gradient, las espirales siguen brillando */
+@supports not (background: conic-gradient(#000, #fff)){
+  .espiral, .espiral-2{
+    background:radial-gradient(circle at 30% 30%, rgba(255,241,168,.55), transparent 60%);
+  }
+}
+@keyframes girar{ to{ transform:rotate(360deg); } }
+@keyframes latir{ 0%,100%{ transform:scale(1); opacity:.95 } 50%{ transform:scale(1.07); opacity:1 } }
+
+/* Corazón dorado sobre el núcleo */
+.corazon{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%, calc(-50% - clamp(120px, 22vmin, 195px)));
+  width:clamp(64px, 12vmin, 104px);
+  background:none; border:0; padding:0; cursor:pointer;
+  animation:flotar 6s ease-in-out infinite;
+}
+.corazon svg{ width:100%; height:auto; display:block;
+  filter:drop-shadow(0 0 10px rgba(255,211,77,.9)) drop-shadow(0 0 30px rgba(247,168,60,.6)); }
+.corazon::after{
+  content:""; position:absolute; inset:-38%;
+  border-radius:50%; z-index:-1;
+  background:radial-gradient(circle, rgba(255,211,77,.42), transparent 68%);
+  animation:latir 3.4s ease-in-out infinite;
+}
+.corazon svg{ transition:transform .35s ease; }
+.corazon:focus-visible svg{ transform:scale(1.07); }
+.corazon:active svg{ transform:scale(.94); }           /* respuesta al toque */
+@media (hover:hover) and (pointer:fine){
+  .corazon:hover svg{ transform:scale(1.07); }
+}
+
+/* ---------- Ramos ---------- */
+.ramos{ position:absolute; inset:0; }
+
+.ramo{
+  position:absolute; left:50%; top:50%;
+  transform:
+    translate(-50%,-50%)
+    rotate(var(--a))
+    translate(var(--radio-orbita))
+    rotate(calc(var(--a) * -1));
+  width:clamp(104px, 16vmin, 150px);
+}
+.ramo-btn{
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  width:100%; background:none; border:0; padding:0; cursor:pointer;
+  color:inherit; font:inherit;
+  animation:flotar var(--dur, 7s) ease-in-out infinite;
+  animation-delay:var(--delay, 0s);
+}
+.ramo-btn svg, .ramo-btn img{
+  width:100%; height:auto; display:block;
+  filter:drop-shadow(0 0 8px rgba(255,211,77,.55)) drop-shadow(0 0 22px rgba(247,168,60,.35));
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1), filter .4s ease;
+}
+.ramo-btn img{ border-radius:14px; }
+.ramo-btn:focus-visible svg, .ramo-btn:focus-visible img{
+  transform:scale(1.1) translateY(-4px);
+  filter:drop-shadow(0 0 14px rgba(255,241,168,.95)) drop-shadow(0 0 34px rgba(247,168,60,.6));
+}
+/* En pantallas táctiles el :hover se queda pegado tras tocar, así que solo
+   se aplica donde hay ratón. El toque usa :active. */
+@media (hover:hover) and (pointer:fine){
+  .ramo-btn:hover svg, .ramo-btn:hover img{
+    transform:scale(1.1) translateY(-4px);
+    filter:drop-shadow(0 0 14px rgba(255,241,168,.95)) drop-shadow(0 0 34px rgba(247,168,60,.6));
+  }
+}
+.ramo-btn:active svg, .ramo-btn:active img{ transform:scale(.95); }
+.frase{
+  font-family:var(--serif); font-style:italic;
+  font-size:clamp(.8rem, 1.9vw, 1rem);
+  padding:.3rem .8rem; border-radius:999px;
+  color:#2a1b02;
+  background:linear-gradient(140deg, var(--oro-claro), var(--oro));
+  box-shadow:0 0 16px rgba(255,211,77,.55);
+  white-space:nowrap;
+}
+@keyframes flotar{
+  0%,100%{ transform:translateY(0) }
+  50%    { transform:translateY(-14px) }
+}
+
+/* ---------- Carta (modal) ---------- */
+.velo{
+  position:fixed; inset:0; z-index:40;
+  background:rgba(6,3,16,.82);
+  -webkit-backdrop-filter:blur(6px);   /* Safari iOS */
+  backdrop-filter:blur(6px);
+  opacity:0; visibility:hidden;
+  transition:opacity .4s ease, visibility .4s;
+}
+.velo.visible{ opacity:1; visibility:visible; }
+
+.carta{
+  position:fixed; z-index:50;
+  left:50%; top:50%;
+  width:min(94vw, 620px);
+  max-height:min(86vh, 780px);        /* respaldo */
+  max-height:min(86svh, 780px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;   /* inercia de scroll en iOS */
+  overscroll-behavior:contain;        /* el fondo no se mueve al llegar al final */
+  transform:translate(-50%,-46%) scale(.86);
+  opacity:0; visibility:hidden;
+  transition:transform .45s cubic-bezier(.22,1,.36,1), opacity .35s ease, visibility .45s;
+  background:linear-gradient(165deg, #fffaea 0%, var(--miel) 45%, #ffe9a8 100%);
+  color:var(--tinta);
+  border:1px solid rgba(255,211,77,.9);
+  border-radius:22px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.5) inset, 0 30px 80px rgba(0,0,0,.55), 0 0 70px rgba(255,180,60,.35);
+  padding:clamp(1.6rem,4.5vw,2.6rem);
+  text-align:center;
+}
+.carta.visible{ transform:translate(-50%,-50%) scale(1); opacity:1; visibility:visible; }
+
+.carta h2{
+  font-family:var(--serif); font-weight:600; font-style:italic;
+  font-size:clamp(1.35rem,4.5vw,2rem);
+  line-height:1.2; margin:0 0 1.2rem;
+  color:#6b4406;
+}
+.carta .foto{
+  width:100%; height:clamp(220px, 44vw, 320px);   /* altura fija: todas las fotos quedan iguales */
+  object-fit:cover;                               /* recorta sin deformar; el encuadre se ajusta con "posicion" */
+  display:block;
+  border-radius:16px; margin-bottom:1.3rem;
+  border:3px solid rgba(255,211,77,.8);
+  box-shadow:0 10px 28px rgba(120,80,0,.28);
+}
+.foto-vacia{
+  border:2px dashed rgba(150,105,10,.5);
+  border-radius:16px; padding:1.5rem 1rem; margin-bottom:1.3rem;
+  font-size:.82rem; color:#8a6714; line-height:1.5;
+}
+.foto-vacia code{ background:rgba(255,211,77,.35); padding:.15rem .4rem; border-radius:5px; }
+
+.carta .texto{
+  font-family:var(--serif);
+  font-size:clamp(.98rem,2.6vw,1.08rem);
+  line-height:1.75; text-align:left;
+  max-width:52ch; margin:0 auto 1.6rem;
+}
+.carta .texto p{ margin:0 0 1rem; }
+.carta .firma{
+  font-family:var(--serif); font-style:italic;
+  text-align:right; color:#8a6714; margin-bottom:1.6rem;
+}
+.cerrar{
+  font-family:var(--sans); font-weight:600;
+  font-size:1rem; padding:.8rem 2.4rem;
+  border:0; border-radius:999px; cursor:pointer;
+  color:#3a2603;
+  background:linear-gradient(140deg, var(--oro-claro), var(--ambar));
+  box-shadow:0 8px 22px rgba(190,120,10,.35);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.cerrar:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(190,120,10,.45); }
+
+/* ---------- Accesibilidad ---------- */
+:focus-visible{ outline:3px solid var(--oro-claro); outline-offset:4px; border-radius:8px; }
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation:none !important; transition-duration:.01ms !important; }
+}
+
+/* ---------- Móvil: el orbital pasa a una cuadrícula ---------- */
+/* Incluye el celular en horizontal, donde sobra ancho pero falta alto */
+@media (max-width: 760px), (max-height: 540px) and (orientation: landscape){
+  .galaxia{ width:100%; aspect-ratio:auto; display:block; }
+  .nucleo-wrap{
+    position:relative; left:auto; top:auto; transform:none;
+    margin:clamp(70px,18vw,110px) auto clamp(2.5rem,9vw,4rem);
+    width:clamp(160px,46vw,230px);
+  }
+  .corazon{
+    top:0; transform:translate(-50%, calc(-1 * clamp(70px,18vw,110px)));
+    width:clamp(58px,17vw,86px);
+  }
+  .ramos{
+    position:static; inset:auto;
+    display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:clamp(1.6rem,6vw,2.4rem) 1rem;
+    justify-items:center;
+  }
+  .ramo{
+    position:static; left:auto; top:auto; transform:none;
+    width:clamp(112px, 34vw, 165px);
+  }
+  /* Una sola sombra en vez de dos: pesan bastante en GPU de celular */
+  .ramo-btn svg, .ramo-btn img{
+    filter:drop-shadow(0 0 10px rgba(255,211,77,.6));
+  }
+  .espiral, .espiral-2{ filter:blur(10px); }
+  /* Área de toque cómoda alrededor de cada ramo */
+  .ramo-btn{ padding:.4rem 0; }
+}
+
+/* En horizontal con poca altura, el conjunto se achica para caber */
+@media (max-height: 540px) and (orientation: landscape){
+  .ramos{ grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .nucleo-wrap{ width:clamp(130px, 22vh, 180px); }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="cielo" aria-hidden="true"></canvas>
+
+<main class="universo">
+
+  <header class="intro">
+    <h1>Un universo de flores amarillas para Steff</h1>
+    <p>Cada ramo que gira alrededor de esta galaxia guarda algo que quiero decirte. Tócalos uno a uno.</p>
+  </header>
+
+  <section class="galaxia" aria-label="Galaxia de flores">
+
+    <div class="nucleo-wrap" aria-hidden="true">
+      <div class="espiral"></div>
+      <div class="espiral-2"></div>
+      <div class="halo"></div>
+    </div>
+
+    <button class="corazon" id="corazon" aria-label="Abrir la carta principal para Steff">
+      <svg viewBox="0 0 100 92" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="gradCorazon" cx="38%" cy="28%" r="78%">
+            <stop offset="0%"  stop-color="#fffdf0"/>
+            <stop offset="42%" stop-color="#ffd34d"/>
+            <stop offset="100%" stop-color="#f7a83c"/>
+          </radialGradient>
+        </defs>
+        <path fill="url(#gradCorazon)" stroke="#fff6d8" stroke-width="2"
+          d="M50 90C50 90 4 62 4 30.5 4 14.5 16.5 4 29.5 4 39 4 46.5 9.5 50 17.5 53.5 9.5 61 4 70.5 4 83.5 4 96 14.5 96 30.5 96 62 50 90 50 90Z"/>
+      </svg>
+    </button>
+
+    <div class="ramos" id="ramos"><!-- Los ramos se generan con JavaScript --></div>
+
+  </section>
+</main>
+
+<!-- ---------- Carta emergente ---------- -->
+<div class="velo" id="velo"></div>
+
+<div class="carta" id="carta" role="dialog" aria-modal="true" aria-labelledby="carta-titulo" aria-hidden="true">
+  <h2 id="carta-titulo"></h2>
+  <div id="carta-foto"></div>
+  <div class="texto" id="carta-texto"></div>
+  <p class="firma" id="carta-firma"></p>
+  <button class="cerrar" id="cerrar">Para ti</button>
+</div>
+
+<script>
+/* =========================================================
+   1) CONFIGURACIÓN — esto es lo único que necesitas editar
+   ========================================================= */
+
+/* Foto de respaldo: se usa en las cartas que no tengan su propia "foto". */
+const FOTO_MODAL = "images/atardecer-capuchas.jpg";
+
+/* Encuadre por defecto de las fotos dentro del recuadro (recorta sin deformar).
+   "center 30%" deja las caras algo más arriba del centro. */
+const POSICION_POR_DEFECTO = "center 30%";
+
+/* Cómo firmas las cartas */
+const FIRMA = "Tuyo, siempre.";
+
+/* Los ramos que giran alrededor de la galaxia.
+   - flor:     "girasol" | "margarita" | "tulipan" | "rosa" | "narciso"
+   - imagen:   déjalo vacío ("") para usar el dibujo SVG.
+               Si pones una ruta o URL — por ejemplo "imagenes/ramo1.png" —
+               esa imagen reemplaza al SVG en ese ramo.
+   - foto:     foto de esa carta, dentro de la carpeta images/.
+   - posicion: encuadre de la foto ("center 30%" = centrada, un poco hacia arriba).
+               Sube el segundo número para mostrar más de la parte baja de la foto,
+               bájalo para mostrar más de la parte alta.
+   Puedes añadir o quitar ramos de esta lista: se reacomodan solos. */
+const RAMOS = [
+  {
+    frase: "Te amo",
+    flor: "girasol",
+    imagen: "",
+    foto: "images/atardecer-capuchas.jpg",
+    posicion: "center 20%",
+    titulo: "Para Steff, el amor de mi vida",
+    carta: [
+      "Hay cosas que uno quiere decir y no le caben en una conversación cualquiera, así que las guardé aquí, en un lugar hecho a propósito para ti.",
+      "Te amo de una manera tranquila y enorme al mismo tiempo. No es solo cuando todo sale bien: también te amo los días grises, cuando estás cansada, cuando no tienes ganas de nada. Te amo en tu risa fuerte y en tus silencios, en la forma en que me cuentas tu día, en cómo te preocupas por los demás sin que nadie te lo pida.",
+      "Desde que estás conmigo, las cosas comunes se volvieron bonitas. Un mensaje tuyo a media tarde, caminar sin rumbo, una comida cualquiera contigo enfrente. Nada de eso es espectacular y aun así no lo cambiaría por nada.",
+      "Si el universo fuera mío, lo llenaría entero de flores amarillas, porque son del color de lo que siento cuando pienso en ti: luz, calor, ganas de quedarme. Y en el centro de todo ese universo estarías tú, que ya eres mi centro de todas formas.",
+      "Gracias por elegirme cada día. Yo te elijo a ti, hoy y todas las veces que haga falta."
+    ]
+  },
+  {
+    frase: "Eres mi sol",
+    flor: "margarita",
+    imagen: "",
+    foto: "images/cielo-azul.jpg",
+    posicion: "center 62%",
+    titulo: "Eres mi sol",
+    carta: [
+      "Hay personas que iluminan un lugar sin proponérselo. Tú eres así. Entras, hablas, te ríes, y todo alrededor se pone más cálido.",
+      "No sabes la cantidad de días míos que se arreglaron solo porque apareciste tú. Eres mi sol, y lo digo en serio: alrededor tuyo gira todo lo bueno que tengo."
+    ]
+  },
+  {
+    frase: "Mi amor",
+    flor: "tulipan",
+    imagen: "",
+    foto: "images/beso-peluche.jpg",
+    posicion: "center 25%",
+    titulo: "Mi amor",
+    carta: [
+      "Te llamo mi amor tantas veces al día que a veces la palabra parece pequeña. Pero cada vez que la digo significa lo mismo: que estás dentro de todo lo que pienso.",
+      "Que eres a quien le quiero contar lo que me pasa antes que a nadie. Que cuando imagino adelante, siempre estás ahí."
+    ]
+  },
+  {
+    frase: "Eres preciosa",
+    flor: "rosa",
+    imagen: "",
+    foto: "images/cardigan-amarillo.jpg",
+    posicion: "center 22%",
+    titulo: "Eres preciosa",
+    carta: [
+      "Eres preciosa cuando te arreglas y eres preciosa recién despierta, con el pelo hecho un desastre y la voz dormida.",
+      "Ojalá pudieras verte un momento como te veo yo: con esa mezcla de ternura y fuerza que tienes, con esos ojos que me desarman. Eres preciosa por fuera, sí, pero sobre todo lo eres por dentro."
+    ]
+  },
+  {
+    frase: "Siempre juntos",
+    flor: "narciso",
+    imagen: "",
+    foto: "images/ascensor.jpg",
+    posicion: "center 55%",
+    titulo: "Siempre juntos",
+    carta: [
+      "No te prometo que todo vaya a ser fácil, porque la vida no funciona así. Te prometo otra cosa: que en lo difícil voy a estar, y que no te voy a soltar la mano.",
+      "Siempre juntos no es una frase bonita para mí, es un plan. Uno que pienso cumplir."
+    ]
+  },
+  {
+    frase: "Eres mi todo",
+    flor: "girasol",
+    imagen: "",
+    foto: "images/selfie-divertida.jpg",
+    posicion: "center 28%",
+    titulo: "Eres mi todo",
+    carta: [
+      "Mi lugar tranquilo, mi risa fácil, mi persona favorita para contarle cualquier tontería. Eso eres.",
+      "Cuando digo que eres mi todo no exagero: eres la parte de mi vida que hace que el resto tenga sentido."
+    ]
+  },
+  {
+    frase: "Mi vida entera",
+    flor: "margarita",
+    imagen: "",
+    foto: "images/tienda-espejo.jpg",
+    posicion: "center 52%",
+    titulo: "Mi vida entera",
+    carta: [
+      "Pienso en los años que vienen y en todos aparecés tú: en la casa, en los viajes, en las tardes sin nada que hacer.",
+      "Quiero contigo lo grande y también lo aburrido. Sobre todo lo aburrido, que es donde de verdad se quiere a alguien."
+    ]
+  },
+  {
+    frase: "Mi lugar favorito",
+    flor: "tulipan",
+    imagen: "",
+    foto: "images/abrazo-cama.jpg",
+    posicion: "center 35%",
+    titulo: "Mi lugar favorito",
+    carta: [
+      "He estado en sitios bonitos, pero ninguno se siente como abrazarte.",
+      "Ahí, contigo, es donde se me apaga el ruido. Mi lugar favorito del mundo no es un lugar: eres tú."
+    ]
+  }
+];
+
+/* Carta que se abre al tocar el corazón dorado (la principal) */
+const CARTA_DEL_CORAZON = RAMOS[0];
+
+
+/* =========================================================
+   2) DIBUJO DE LAS FLORES (SVG generado)
+   ========================================================= */
+
+const paleta = {
+  girasol:   { petalo:"#ffd34d", petalo2:"#f7a83c", centro:"#7a4a12" },
+  margarita: { petalo:"#fff6d8", petalo2:"#ffe9a8", centro:"#ffc94d" },
+  tulipan:   { petalo:"#ffcf3f", petalo2:"#f0982c", centro:"#fff1a8" },
+  rosa:      { petalo:"#ffdf76", petalo2:"#eda12c", centro:"#fff6d8" },
+  narciso:   { petalo:"#fff1a8", petalo2:"#ffd34d", centro:"#f7a83c" }
+};
+
+function petalos(cx, cy, r, n, anchoRel, color, borde){
+  let s = "";
+  for(let i=0;i<n;i++){
+    const ang = (360/n)*i;
+    s += `<ellipse cx="${cx}" cy="${cy-r*0.62}" rx="${(r*anchoRel).toFixed(1)}" ry="${(r*0.62).toFixed(1)}"
+            fill="${color}" stroke="${borde}" stroke-width="0.8"
+            transform="rotate(${ang} ${cx} ${cy})"/>`;
+  }
+  return s;
+}
+
+function cabeza(tipo, cx, cy, r){
+  const c = paleta[tipo];
+  switch(tipo){
+    case "girasol":
+      return petalos(cx,cy,r,14,0.24,c.petalo,c.petalo2) +
+             `<circle cx="${cx}" cy="${cy}" r="${r*0.42}" fill="${c.centro}"/>
+              <circle cx="${cx}" cy="${cy}" r="${r*0.28}" fill="#9c6216" opacity=".7"/>`;
+    case "margarita":
+      return petalos(cx,cy,r,12,0.15,c.petalo,c.petalo2) +
+             `<circle cx="${cx}" cy="${cy}" r="${r*0.34}" fill="${c.centro}"/>`;
+    case "narciso":
+      return petalos(cx,cy,r,6,0.32,c.petalo,c.petalo2) +
+             `<circle cx="${cx}" cy="${cy}" r="${r*0.40}" fill="${c.centro}"/>
+              <circle cx="${cx}" cy="${cy}" r="${r*0.26}" fill="#b9700f" opacity=".55"/>`;
+    case "tulipan":
+      return `<path d="M ${cx-r*0.72} ${cy+r*0.55}
+                       C ${cx-r*0.85} ${cy-r*0.35}, ${cx-r*0.42} ${cy-r*0.95}, ${cx} ${cy-r*0.95}
+                       C ${cx+r*0.42} ${cy-r*0.95}, ${cx+r*0.85} ${cy-r*0.35}, ${cx+r*0.72} ${cy+r*0.55}
+                       Z" fill="${c.petalo}" stroke="${c.petalo2}" stroke-width="1.2"/>
+              <path d="M ${cx-r*0.30} ${cy-r*0.88} C ${cx-r*0.36} ${cy-r*0.2}, ${cx-r*0.18} ${cy+r*0.3}, ${cx} ${cy+r*0.5}"
+                    fill="none" stroke="${c.petalo2}" stroke-width="1" opacity=".8"/>
+              <path d="M ${cx+r*0.30} ${cy-r*0.88} C ${cx+r*0.36} ${cy-r*0.2}, ${cx+r*0.18} ${cy+r*0.3}, ${cx} ${cy+r*0.5}"
+                    fill="none" stroke="${c.petalo2}" stroke-width="1" opacity=".8"/>`;
+    case "rosa":
+    default:
+      return `<circle cx="${cx}" cy="${cy}" r="${r*0.92}" fill="${c.petalo}" stroke="${c.petalo2}" stroke-width="1"/>
+              <circle cx="${cx}" cy="${cy}" r="${r*0.62}" fill="none" stroke="${c.petalo2}" stroke-width="1.4"/>
+              <circle cx="${cx}" cy="${cy}" r="${r*0.38}" fill="none" stroke="${c.petalo2}" stroke-width="1.4"/>
+              <path d="M ${cx} ${cy-r*0.2} a ${r*0.2} ${r*0.2} 0 1 1 ${-r*0.02} ${r*0.02}"
+                    fill="none" stroke="${c.petalo2}" stroke-width="1.6"/>
+              <circle cx="${cx}" cy="${cy}" r="${r*0.12}" fill="${c.centro}"/>`;
+  }
+}
+
+function svgRamo(tipo){
+  return `
+  <svg viewBox="0 0 120 152" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+    <!-- tallos -->
+    <g fill="none" stroke="#8fae4e" stroke-width="3" stroke-linecap="round">
+      <path d="M60 144 C 52 118, 40 96, 30 66"/>
+      <path d="M60 144 C 60 116, 60 90, 60 52"/>
+      <path d="M60 144 C 68 118, 80 96, 90 68"/>
+    </g>
+    <!-- hojas -->
+    <path d="M58 112 C 44 108, 36 98, 34 88 C 48 88, 56 98, 58 112 Z" fill="#9dbb58"/>
+    <path d="M62 100 C 76 96, 84 86, 86 76 C 72 76, 64 86, 62 100 Z" fill="#8fae4e"/>
+    <!-- flores -->
+    ${cabeza(tipo, 30, 62, 21)}
+    ${cabeza(tipo, 60, 46, 25)}
+    ${cabeza(tipo, 90, 64, 21)}
+    <!-- lazo -->
+    <rect x="48" y="116" width="24" height="12" rx="4" fill="#ffd34d" stroke="#f7a83c"/>
+    <path d="M48 122 l-11 -8 v16 z M72 122 l11 -8 v16 z" fill="#ffe9a8" stroke="#f7a83c"/>
+  </svg>`;
+}
+
+
+/* =========================================================
+   3) CONSTRUIR LOS RAMOS ALREDEDOR DE LA GALAXIA
+   ========================================================= */
+
+const contenedor = document.getElementById("ramos");
+
+RAMOS.forEach((ramo, i) => {
+  const angulo = -67.5 + (360 / RAMOS.length) * i;   // arranca fuera del corazón
+
+  const nodo = document.createElement("div");
+  nodo.className = "ramo";
+  nodo.style.setProperty("--a", angulo + "deg");
+
+  const visual = ramo.imagen
+    ? `<img src="${ramo.imagen}" alt="">`
+    : svgRamo(ramo.flor);
+
+  nodo.innerHTML = `
+    <button class="ramo-btn" style="--dur:${(6 + (i % 4) * 0.9).toFixed(1)}s; --delay:${(i * 0.45).toFixed(2)}s"
+            aria-label="Abrir la carta: ${ramo.frase}">
+      ${visual}
+      <span class="frase">${ramo.frase}</span>
+    </button>`;
+
+  nodo.querySelector(".ramo-btn").addEventListener("click", () => abrirCarta(ramo));
+  contenedor.appendChild(nodo);
+});
+
+document.getElementById("corazon")
+        .addEventListener("click", () => abrirCarta(CARTA_DEL_CORAZON));
+
+/* Precarga las fotos en segundo plano para que la carta abra al instante */
+RAMOS.forEach(r => { const p = new Image(); p.src = r.foto || FOTO_MODAL; });
+
+
+/* =========================================================
+   4) CARTA EMERGENTE
+   ========================================================= */
+
+const velo   = document.getElementById("velo");
+const carta  = document.getElementById("carta");
+const btnCerrar = document.getElementById("cerrar");
+let ultimoFoco = null;
+let scrollGuardado = 0;
+
+function abrirCarta(datos){
+  ultimoFoco = document.activeElement;
+
+  document.getElementById("carta-titulo").textContent = datos.titulo;
+  document.getElementById("carta-texto").innerHTML =
+    datos.carta.map(p => `<p>${p}</p>`).join("");
+  document.getElementById("carta-firma").textContent = FIRMA;
+
+  // Foto destacada (con aviso amable si el archivo no se encuentra)
+  const ruta = datos.foto || FOTO_MODAL;
+  const posicion = datos.posicion || POSICION_POR_DEFECTO;
+  const cajaFoto = document.getElementById("carta-foto");
+  cajaFoto.innerHTML = `<img class="foto" src="${ruta}" alt="Una foto nuestra" style="object-position:${posicion}">`;
+  cajaFoto.querySelector("img").addEventListener("error", () => {
+    cajaFoto.innerHTML = `<div class="foto-vacia">No se encontró la foto.
+      Revisa que <code>${ruta}</code> exista en el repositorio.</div>`;
+  });
+
+  velo.classList.add("visible");
+  carta.classList.add("visible");
+  carta.setAttribute("aria-hidden","false");
+  carta.scrollTop = 0;
+  btnCerrar.focus({ preventScroll:true });
+
+  /* iOS ignora overflow:hidden en body, así que lo congelamos de verdad
+     y guardamos la posición para devolverla al cerrar. */
+  scrollGuardado = window.scrollY || window.pageYOffset || 0;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollGuardado}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarCarta(){
+  velo.classList.remove("visible");
+  carta.classList.remove("visible");
+  carta.setAttribute("aria-hidden","true");
+
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.overflow = "";
+  window.scrollTo(0, scrollGuardado);
+
+  if(ultimoFoco) ultimoFoco.focus({ preventScroll:true });
+}
+
+btnCerrar.addEventListener("click", cerrarCarta);
+velo.addEventListener("click", cerrarCarta);
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && carta.classList.contains("visible")) cerrarCarta();
+});
+
+
+/* =========================================================
+   5) CIELO: ESTRELLAS QUE TITILAN + POLVO DORADO
+   ========================================================= */
+
+const cv = document.getElementById("cielo");
+const ctx = cv.getContext("2d");
+const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W, H, anchoCSS = 0, altoCSS = 0, estrellas = [], polvo = [];
+
+/* En celular bajamos la resolución del canvas y la cantidad de partículas:
+   se ve igual de bien y no calienta el teléfono. */
+const esMovil = innerWidth < 760 || matchMedia("(pointer:coarse)").matches;
+const pocaMemoria = (navigator.deviceMemory || 4) <= 2 ||
+                    (navigator.hardwareConcurrency || 4) <= 4;
+
+function medir(){
+  const tope = esMovil ? (pocaMemoria ? 1 : 1.5) : 2;
+  const dpr = Math.min(window.devicePixelRatio || 1, tope);
+  /* Se mide el tamaño real que el CSS le dio al canvas (no innerHeight):
+     así no queda una franja vacía cuando la barra del navegador se oculta. */
+  anchoCSS = cv.clientWidth  || innerWidth;
+  altoCSS  = cv.clientHeight || innerHeight;
+  W = cv.width  = Math.round(anchoCSS * dpr);
+  H = cv.height = Math.round(altoCSS  * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  poblar();
+}
+
+function poblar(){
+  const ancho = anchoCSS, alto = altoCSS;
+  const densidad = esMovil ? (pocaMemoria ? 3 : 2) : 1;
+  const nEstrellas = Math.min(esMovil ? 140 : 300, Math.round(ancho * alto / (4200 * densidad)));
+  const nPolvo     = Math.min(esMovil ? 40  : 90,  Math.round(ancho * alto / (16000 * densidad)));
+
+  estrellas = Array.from({length:nEstrellas}, () => ({
+    x: Math.random()*ancho,
+    y: Math.random()*alto,
+    r: Math.random()*1.3 + .3,
+    fase: Math.random()*Math.PI*2,
+    vel: Math.random()*1.6 + .4,
+    calida: Math.random() < .35
+  }));
+
+  polvo = Array.from({length:nPolvo}, () => ({
+    x: Math.random()*ancho,
+    y: Math.random()*alto,
+    r: Math.random()*2.4 + .8,
+    vy: Math.random()*.28 + .08,
+    amp: Math.random()*22 + 8,
+    fase: Math.random()*Math.PI*2,
+    alfa: Math.random()*.45 + .25
+  }));
+}
+
+function pintar(t){
+  const ancho = anchoCSS, alto = altoCSS;
+  ctx.clearRect(0, 0, ancho, alto);
+
+  for(const e of estrellas){
+    const brillo = quieto ? .7 : .35 + .65*Math.abs(Math.sin(t*0.001*e.vel + e.fase));
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+    ctx.fillStyle = e.calida
+      ? `rgba(255,224,150,${brillo})`
+      : `rgba(255,255,255,${brillo*.85})`;
+    ctx.fill();
+  }
+
+  for(const p of polvo){
+    const x = p.x + Math.sin(t*0.0004 + p.fase) * p.amp;
+    ctx.beginPath();
+    if(esMovil){
+      /* Crear un degradado por partícula y por cuadro es caro en celular:
+         se usa un punto con halo simulado por sombra, mucho más liviano. */
+      ctx.arc(x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,214,90,${p.alfa})`;
+      ctx.shadowColor = "rgba(255,190,70,.75)";
+      ctx.shadowBlur = p.r * 5;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.arc(x, p.y, p.r, 0, Math.PI*2);
+      const halo = ctx.createRadialGradient(x, p.y, 0, x, p.y, p.r*4);
+      halo.addColorStop(0, `rgba(255,214,90,${p.alfa})`);
+      halo.addColorStop(1, "rgba(255,180,60,0)");
+      ctx.fillStyle = halo;
+      ctx.fill();
+    }
+
+    if(!quieto){
+      p.y -= p.vy;
+      if(p.y < -10){ p.y = alto + 10; p.x = Math.random()*ancho; }
+    }
+  }
+}
+
+let corriendo = false, ultimoCuadro = 0;
+const msPorCuadro = esMovil ? 33 : 0;   // 30 fps en celular, libre en escritorio
+
+function animar(t){
+  if(!corriendo) return;
+  if(t - ultimoCuadro >= msPorCuadro){
+    ultimoCuadro = t;
+    pintar(t);
+  }
+  requestAnimationFrame(animar);
+}
+function arrancar(){
+  if(quieto || corriendo) return;
+  corriendo = true;
+  requestAnimationFrame(animar);
+}
+function detener(){ corriendo = false; }
+
+/* En móvil, al hacer scroll la barra de URL se oculta y dispara "resize".
+   Si recalculáramos siempre, las estrellas saltarían y el canvas parpadearía.
+   Solo reaccionamos a cambios reales de ancho o de orientación. */
+let anchoPrevio = 0, altoPrevio = 0, esperando;
+function alRedimensionar(){
+  const cambioReal = innerWidth !== anchoPrevio || Math.abs(innerHeight - altoPrevio) > 160;
+  if(!cambioReal) return;
+  clearTimeout(esperando);
+  esperando = setTimeout(() => {
+    anchoPrevio = innerWidth; altoPrevio = innerHeight;
+    medir();
+    if(quieto) pintar(0);
+  }, 180);
+}
+
+medir();
+anchoPrevio = innerWidth; altoPrevio = innerHeight;
+addEventListener("resize", alRedimensionar, { passive:true });
+addEventListener("orientationchange", () => setTimeout(() => {
+  anchoPrevio = 0; alRedimensionar();
+}, 250));
+
+/* Pausar cuando la pestaña o la app queda en segundo plano: cuida la batería */
+document.addEventListener("visibilitychange", () => {
+  document.hidden ? detener() : arrancar();
+});
+
+if(quieto){ pintar(0); } else { arrancar(); }
+</script>
+</body>
+</html>
